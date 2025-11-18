@@ -1,0 +1,236 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyecto SEIS - Pago de Beneficios</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/global-profesional.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pagar-beneficio.css' %}">
+    <link rel="stylesheet" href="{% static 'css/tema-bomberil.css' %}">
+</head>
+<body>
+    <div class="page-container pagar-beneficio-page">
+        <div class="container">
+            <div class="page-header pagar-beneficio-header">
+                <h2>🎫 PAGO DE BENEFICIOS</h2>
+                <p>Registro de Tarjetas Vendidas</p>
+            </div>
+
+            <div class="page-content">
+                <div id="mensajePago" class="mensaje-global" style="display: none;"></div>
+
+                <!-- Información del Bombero -->
+                <div class="bombero-info">
+                    <h3>Información del Voluntario</h3>
+                    <div class="bombero-datos" id="bomberoDatosPago"></div>
+                </div>
+
+                <!-- Resumen de Deudas -->
+                <div class="resumen-deudas-beneficios">
+                    <div class="deuda-card-mini">
+                        <h4>⚠️ Beneficios Pendientes</h4>
+                        <div class="deuda-numero" id="totalBeneficiosPendientes">0</div>
+                    </div>
+                    <div class="deuda-card-mini">
+                        <h4>💰 Deuda Total</h4>
+                        <div class="deuda-monto" id="deudaTotalBeneficios">$0</div>
+                    </div>
+                </div>
+
+             <div class="beneficios-asignados">
+    <h3>🎫 Beneficios Asignados a Este Voluntario</h3>
+    <div id="listaBeneficiosAsignados"></div>
+</div>
+
+<!-- NUEVO: Modal para Venta Extra -->
+<div id="modalVentaExtra" class="modal-overlay" style="display: none;">
+    <div class="modal-content-beneficio">
+        <div class="modal-header-beneficio">
+            <h3>💰 Registrar Venta Extra</h3>
+            <button class="btn-cerrar-modal" onclick="pagarBeneficioSistema.cerrarModalVentaExtra()">✕</button>
+        </div>
+        <div class="modal-body-beneficio">
+            <div id="infoModalVentaExtra" class="info-modal"></div>
+            
+            <form id="formVentaExtra">
+                <input type="hidden" id="ventaExtraAsignacionId">
+                <input type="hidden" id="ventaExtraBeneficioId">
+                <input type="hidden" id="ventaExtraPrecioUnitario">
+                
+                <div class="form-group">
+                    <label for="cantidadTarjetasExtra" class="required">Cantidad de Tarjetas Extras Vendidas</label>
+                    <input type="number" id="cantidadTarjetasExtra" name="cantidadTarjetasExtra" min="1" required 
+                           placeholder="Ej: 5" onchange="pagarBeneficioSistema.calcularMontoExtra()">
+                </div>
+                
+                <div class="form-group">
+                    <label for="montoVentaExtra" class="required">Monto Total de la Venta Extra</label>
+                    <input type="number" id="montoVentaExtra" readonly class="campo-calculado">
+                </div>
+                
+                <div class="form-group">
+                    <label for="fechaVentaExtra" class="required">Fecha de Pago</label>
+                    <input type="date" id="fechaVentaExtra" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="observacionesVentaExtra">Observaciones</label>
+                    <textarea id="observacionesVentaExtra" rows="2" 
+                              placeholder="Ej: Vendió tarjetas extras en el evento"></textarea>
+                </div>
+                
+                <div class="buttons">
+                    <button type="submit" class="btn btn-success">✅ Registrar Venta Extra</button>
+                    <button type="button" class="btn btn-secondary" 
+                            onclick="pagarBeneficioSistema.cerrarModalVentaExtra()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- NUEVO: Modal para Liberar Tarjetas -->
+<div id="modalLiberarTarjetas" class="modal-overlay" style="display: none;">
+    <div class="modal-content-beneficio">
+        <div class="modal-header-beneficio modal-header-warning">
+            <h3>🔄 Liberar Tarjetas Asignadas</h3>
+            <button class="btn-cerrar-modal" onclick="pagarBeneficioSistema.cerrarModalLiberar()">✕</button>
+        </div>
+        <div class="modal-body-beneficio">
+            <div class="warning-box">
+                <strong>⚠️ ADVERTENCIA:</strong>
+                <p>Esta acción reducirá o eliminará las tarjetas asignadas al voluntario.</p>
+            </div>
+            
+            <div id="infoModalLiberar" class="info-modal"></div>
+            
+            <form id="formLiberarTarjetas">
+                <input type="hidden" id="liberarAsignacionId">
+                <input type="hidden" id="liberarBeneficioId">
+                <input type="hidden" id="liberarTarjetasActuales">
+                
+                <div class="form-group">
+                    <label class="required">Tipo de Liberación</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="tipoLiberacion" value="parcial" 
+                                   onchange="pagarBeneficioSistema.cambioTipoLiberacion()">
+                            <span>📊 Liberar Parcialmente (algunas tarjetas)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="tipoLiberacion" value="total" checked
+                                   onchange="pagarBeneficioSistema.cambioTipoLiberacion()">
+                            <span>🔴 Liberar Todas las Tarjetas</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="grupoCantidadLiberar" style="display: none;">
+                    <label for="cantidadLiberar" class="required">Cantidad a Liberar</label>
+                    <input type="number" id="cantidadLiberar" name="cantidadLiberar" min="1" 
+                           placeholder="Cantidad de tarjetas a liberar">
+                </div>
+                
+                <div class="form-group">
+                    <label for="motivoLiberacion" class="required">Motivo de la Liberación</label>
+                    <textarea id="motivoLiberacion" name="motivoLiberacion" rows="3" required
+                              placeholder="Ej: El voluntario no puede asistir al evento"></textarea>
+                </div>
+                
+                <div class="buttons">
+                    <button type="submit" class="btn btn-warning">🔄 Liberar Tarjetas</button>
+                    <button type="button" class="btn btn-secondary" 
+                            onclick="pagarBeneficioSistema.cerrarModalLiberar()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+                <!-- Formulario de Pago -->
+                <div class="form-container" id="formPagoContainer" style="display: none;">
+                    <div class="form-header-pago">
+                        <h3>💰 Registrar Pago de Beneficio</h3>
+                        <button class="btn-cerrar" onclick="pagarBeneficioSistema.cerrarFormulario()">✕</button>
+                    </div>
+                    
+                    <form id="formPagoBeneficio">
+                        <input type="hidden" id="asignacionId" name="asignacionId">
+                        <input type="hidden" id="beneficioId" name="beneficioId">
+                        
+                        <div class="info-beneficio-seleccionado" id="infoBeneficio"></div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="tarjetasVendidas" class="required">Tarjetas Vendidas</label>
+                                <input type="number" id="tarjetasVendidas" name="tarjetasVendidas" required 
+                                       min="0" placeholder="Cantidad vendida" 
+                                       onchange="pagarBeneficioSistema.calcularMonto()">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="montoPago" class="required">Monto a Pagar (CLP)</label>
+                                <input type="number" id="montoPago" name="montoPago" required 
+                                       min="0" readonly class="campo-calculado">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="fechaPago" class="required">Fecha de Pago</label>
+                                <input type="date" id="fechaPago" name="fechaPago" required>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="observaciones" class="opcional">Observaciones</label>
+                                <textarea id="observaciones" name="observaciones" rows="2" 
+                                          placeholder="Observaciones adicionales (opcional)"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="buttons">
+                            <button type="submit" class="btn btn-pagar">✅ Registrar Pago</button>
+                            <button type="button" class="btn btn-secondary" onclick="pagarBeneficioSistema.cerrarFormulario()">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Historial de Pagos -->
+                <div class="list-container">
+                    <div class="list-header">
+                        <h3>📚 Historial de Mis Pagos</h3>
+                        <div style="display: flex; gap: 10px;">
+                            <button type="button" class="btn btn-primary" onclick="pagarBeneficioSistema.generarPDFBeneficios()" style="background: linear-gradient(135deg, #c41e3a 0%, #8b1429 100%);">
+                                📄 DESCARGAR PDF
+                            </button>
+                            <button type="button" class="btn btn-excel" onclick="pagarBeneficioSistema.exportarExcel()">
+                                📊 Descargar Excel
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="contador">
+                        Total de pagos realizados: <strong id="totalPagos">0</strong>
+                    </div>
+                    
+                    <div id="listaPagos" class="lista-items"></div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button type="button" class="btn btn-volver" onclick="pagarBeneficioSistema.volverAlSistema()" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(99, 102, 241, 0.3);">
+                        ← Regresar al Sistema Principal
+                    </button>
+                </div>
+    </div>
+</div>
+
+</div>
+</div>
+</div>
+
+<script src="{% static 'js/auth.js' %}"></script>
+<script src="{% static 'js/storage.js' %}"></script>
+    <script src="{% static 'js/utils.js' %}"></script>
+    <script src="{% static 'js/pagar-beneficio-django.js' %}?v=13.0"></script>
+</body>
+</html>

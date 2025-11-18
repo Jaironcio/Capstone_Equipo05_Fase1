@@ -1,0 +1,338 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Limpiador de Cargos Duplicados</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .info-box ul {
+            margin-left: 20px;
+            color: #555;
+        }
+        
+        .info-box li {
+            margin-bottom: 8px;
+        }
+        
+        .cargo-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .cargo-card.duplicado {
+            border-color: #ff6b6b;
+            background: #fff5f5;
+        }
+        
+        .cargo-card.vigente {
+            border-color: #51cf66;
+            background: #f8fff8;
+        }
+        
+        .cargo-info {
+            flex: 1;
+        }
+        
+        .cargo-info strong {
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .cargo-info small {
+            color: #666;
+            display: block;
+            margin-top: 5px;
+        }
+        
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .badge.duplicado {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .badge.vigente {
+            background: #51cf66;
+            color: white;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn.danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        }
+        
+        .resultado {
+            background: #51cf66;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .resultado h3 {
+            margin-bottom: 10px;
+        }
+        
+        #listaResultados {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+        
+        #cargosContainer {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Limpiador de Cargos Duplicados</h1>
+        <p class="subtitle">Herramienta automática para eliminar cargos duplicados</p>
+        
+        <div class="warning">
+            <strong>⚠️ Importante:</strong> Esta herramienta eliminará los cargos duplicados automáticamente. Asegúrate de que quieres continuar.
+        </div>
+        
+        <div class="info-box">
+            <h3>📋 ¿Qué hará esta herramienta?</h3>
+            <ul>
+                <li>Buscará cargos duplicados del mismo voluntario con el mismo tipo y fechas similares</li>
+                <li>Mantendrá el cargo más reciente (el editado)</li>
+                <li>Eliminará los cargos duplicados antiguos</li>
+                <li>Mostrará un resumen de los cambios realizados</li>
+            </ul>
+        </div>
+        
+        <div id="cargosContainer"></div>
+        
+        <button class="btn" onclick="analizarCargos()">🔍 Analizar Cargos</button>
+        <button class="btn danger" id="btnLimpiar" onclick="limpiarDuplicados()" style="display: none;">🗑️ Eliminar Duplicados</button>
+        
+        <div class="resultado" id="resultado">
+            <h3>✅ Limpieza completada</h3>
+            <ul id="listaResultados"></ul>
+            <button class="btn" onclick="volverAlSistema()" style="margin-top: 15px;">← Volver al Sistema</button>
+        </div>
+    </div>
+    
+    <script>
+        let cargosDuplicados = [];
+        
+        function analizarCargos() {
+            const cargos = JSON.parse(localStorage.getItem('cargos') || '[]');
+            const bomberos = JSON.parse(localStorage.getItem('bomberos') || '[]');
+            
+            if (cargos.length === 0) {
+                alert('No hay cargos registrados');
+                return;
+            }
+            
+            // Agrupar por bomberoId
+            const cargosPorBombero = {};
+            cargos.forEach(cargo => {
+                if (!cargosPorBombero[cargo.bomberoId]) {
+                    cargosPorBombero[cargo.bomberoId] = [];
+                }
+                cargosPorBombero[cargo.bomberoId].push(cargo);
+            });
+            
+            // Encontrar duplicados
+            cargosDuplicados = [];
+            let html = '<h3 style="margin-bottom: 15px; color: #667eea;">📊 Análisis de Cargos</h3>';
+            
+            Object.keys(cargosPorBombero).forEach(bomberoId => {
+                const cargosBombero = cargosPorBombero[bomberoId];
+                const bombero = bomberos.find(b => b.id == bomberoId);
+                const nombreBombero = bombero ? 
+                    `${bombero.primerNombre} ${bombero.primerApellido}` : 
+                    `ID: ${bomberoId}`;
+                
+                if (cargosBombero.length > 1) {
+                    html += `<div style="margin-bottom: 20px;">`;
+                    html += `<h4 style="color: #333; margin-bottom: 10px;">👤 ${nombreBombero}</h4>`;
+                    
+                    // Ordenar por fecha de registro (más reciente primero)
+                    cargosBombero.sort((a, b) => 
+                        new Date(b.fechaRegistro) - new Date(a.fechaRegistro)
+                    );
+                    
+                    cargosBombero.forEach((cargo, index) => {
+                        const esDuplicado = index > 0; // Todos menos el primero
+                        const clase = esDuplicado ? 'duplicado' : 'vigente';
+                        const badge = esDuplicado ? 
+                            '<span class="badge duplicado">🗑️ DUPLICADO</span>' : 
+                            '<span class="badge vigente">✅ MANTENER</span>';
+                        
+                        html += `
+                            <div class="cargo-card ${clase}">
+                                <div class="cargo-info">
+                                    <strong>${cargo.tipoCargo || 'Sin cargo'}</strong>
+                                    <small>Desde: ${cargo.fechaInicioCargo || 'N/A'} | Hasta: ${cargo.fechaFinCargo || 'N/A'}</small>
+                                    <small>Registrado: ${new Date(cargo.fechaRegistro).toLocaleString('es-CL')}</small>
+                                </div>
+                                ${badge}
+                            </div>
+                        `;
+                        
+                        if (esDuplicado) {
+                            cargosDuplicados.push(cargo.id);
+                        }
+                    });
+                    
+                    html += `</div>`;
+                }
+            });
+            
+            if (cargosDuplicados.length === 0) {
+                html += '<div class="info-box"><h3 style="color: #51cf66;">✅ No se encontraron duplicados</h3><p>Todos los cargos están correctos.</p></div>';
+                document.getElementById('btnLimpiar').style.display = 'none';
+            } else {
+                html += `<div class="info-box"><h3>⚠️ Se encontraron ${cargosDuplicados.length} cargo(s) duplicado(s)</h3><p>Click en "Eliminar Duplicados" para limpiarlos.</p></div>`;
+                document.getElementById('btnLimpiar').style.display = 'block';
+            }
+            
+            document.getElementById('cargosContainer').innerHTML = html;
+        }
+        
+        function limpiarDuplicados() {
+            if (cargosDuplicados.length === 0) {
+                alert('No hay duplicados para eliminar');
+                return;
+            }
+            
+            const confirmacion = confirm(
+                `¿Estás seguro de que deseas eliminar ${cargosDuplicados.length} cargo(s) duplicado(s)?\n\n` +
+                `Esta acción no se puede deshacer.`
+            );
+            
+            if (!confirmacion) return;
+            
+            let cargos = JSON.parse(localStorage.getItem('cargos') || '[]');
+            const cargosAntesCount = cargos.length;
+            
+            // Eliminar duplicados
+            cargos = cargos.filter(c => !cargosDuplicados.includes(c.id));
+            
+            // Guardar
+            localStorage.setItem('cargos', JSON.stringify(cargos));
+            
+            // Mostrar resultado
+            const eliminados = cargosAntesCount - cargos.length;
+            document.getElementById('listaResultados').innerHTML = `
+                <li>✅ Cargos antes: ${cargosAntesCount}</li>
+                <li>✅ Cargos después: ${cargos.length}</li>
+                <li>✅ Eliminados: ${eliminados}</li>
+            `;
+            
+            document.getElementById('resultado').style.display = 'block';
+            document.getElementById('cargosContainer').style.display = 'none';
+            document.getElementById('btnLimpiar').style.display = 'none';
+        }
+        
+        function volverAlSistema() {
+            window.location.href = 'sistema.html';
+        }
+        
+        // Analizar automáticamente al cargar
+        window.onload = () => {
+            setTimeout(analizarCargos, 500);
+        };
+    </script>
+</body>
+</html>

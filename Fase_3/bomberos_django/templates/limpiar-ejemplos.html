@@ -1,0 +1,139 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpiar Ejemplos - Proyecto SEIS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            color: #c41e3a;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #856404;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 2px solid #0c5460;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #0c5460;
+            text-align: left;
+        }
+        .info ul {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        .info li {
+            margin: 5px 0;
+        }
+        button {
+            background: #c41e3a;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        button:hover {
+            background: #a01829;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(196, 30, 58, 0.4);
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Limpiar Datos de Ejemplo</h1>
+        
+        <div class="warning">
+            <strong>⚠️ ADVERTENCIA:</strong><br>
+            Este proceso eliminará TODOS los datos de ejemplo del sistema.
+        </div>
+        
+        <div class="info">
+            <strong>📋 Se eliminarán:</strong>
+            <ul>
+                <li>Bomberos de ejemplo (IDs 1-6)</li>
+                <li>Sanciones de ejemplo (IDs 1-12)</li>
+                <li>Cargos de ejemplo (IDs 1-18)</li>
+            </ul>
+            <br>
+            <strong>✅ Se mantendrán:</strong>
+            <ul>
+                <li>Todos los voluntarios creados por ti</li>
+                <li>Todas las sanciones y cargos reales</li>
+                <li>Usuarios y configuraciones</li>
+            </ul>
+        </div>
+        
+        <button onclick="ejecutarLimpieza()">
+            🧹 Eliminar Ejemplos
+        </button>
+        
+        <button class="btn-secondary" onclick="volver()">
+            ← Cancelar
+        </button>
+        
+        <p style="margin-top: 20px; color: #666; font-size: 0.9rem;">
+            Después de la limpieza, serás redirigido al sistema principal.
+        </p>
+    </div>
+    
+    <script src="{% static 'js/limpiar-ejemplos.js' %}"></script>
+    <script>
+        function ejecutarLimpieza() {
+            if (confirm('¿Estás seguro de eliminar todos los datos de ejemplo?\n\nEsta acción NO se puede deshacer.')) {
+                // El script ya se ejecutará automáticamente
+                setTimeout(() => {
+                    window.location.href = 'sistema.html';
+                }, 2000);
+            }
+        }
+        
+        function volver() {
+            window.location.href = 'sistema.html';
+        }
+    </script>
+</body>
+</html>

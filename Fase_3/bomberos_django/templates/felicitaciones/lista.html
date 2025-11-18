@@ -1,0 +1,40 @@
+{% load static %}
+{% extends 'base.html' %}
+
+{% block title %}Felicitaciones{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between;">
+    <h2>🏆 Felicitaciones y Reconocimientos</h2>
+    <a href="{% url 'crear_felicitacion' %}" class="btn btn-primary">➕ Nueva Felicitación</a>
+</div>
+
+<div style="background: white; padding: 20px; border-radius: 12px;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f8f9fa; border-bottom: 2px solid #e0e0e0;">
+                <th style="padding: 12px;">Voluntario</th>
+                <th style="padding: 12px;">Fecha</th>
+                <th style="padding: 12px;">Motivo</th>
+                <th style="padding: 12px;">Otorgado Por</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for felic in felicitaciones %}
+            <tr style="border-bottom: 1px solid #e0e0e0;">
+                <td style="padding: 12px; font-weight: 600;">{{ felic.voluntario.nombre_completo }}</td>
+                <td style="padding: 12px;">{{ felic.fecha }}</td>
+                <td style="padding: 12px;">{{ felic.motivo|truncatewords:15 }}</td>
+                <td style="padding: 12px;">{{ felic.otorgado_por }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" style="padding: 40px; text-align: center;">No hay felicitaciones registradas</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<a href="{% url 'sistema' %}" class="btn btn-secondary" style="margin-top: 20px;">← Volver</a>
+{% endblock %}

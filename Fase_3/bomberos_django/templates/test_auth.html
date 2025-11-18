@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Test de Autenticación</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .info-box {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success { border-left: 4px solid #4caf50; }
+        .error { border-left: 4px solid #f44336; }
+        .warning { border-left: 4px solid #ff9800; }
+        pre {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Test de Autenticación Django</h1>
+    
+    <div class="info-box warning">
+        <h3>Información:</h3>
+        <p>Esta página NO redirige automáticamente. Úsala para diagnosticar el problema.</p>
+    </div>
+
+    <div class="info-box">
+        <h3>Estado de Autenticación:</h3>
+        <div id="authStatus">Verificando...</div>
+    </div>
+
+    <div class="info-box">
+        <h3>Cookies:</h3>
+        <pre id="cookiesInfo">Cargando...</pre>
+    </div>
+
+    <div class="info-box">
+        <h3>LocalStorage:</h3>
+        <pre id="localStorageInfo">Cargando...</pre>
+    </div>
+
+    <div class="info-box">
+        <h3>Usuario Actual:</h3>
+        <pre id="currentUserInfo">Cargando...</pre>
+    </div>
+
+    <div>
+        <button onclick="testAuth()">🔄 Re-verificar Auth</button>
+        <button onclick="location.href='/sistema.html'">→ Ir a Sistema</button>
+        <button onclick="location.href='/'">← Volver a Login</button>
+    </div>
+
+    <div class="info-box">
+        <h3>Log de Eventos:</h3>
+        <pre id="logOutput"></pre>
+    </div>
+
+    <script>
+        const API_BASE_URL = '/api';
+        let logMessages = [];
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMsg = `[${timestamp}] ${message}`;
+            logMessages.push(logMsg);
+            document.getElementById('logOutput').textContent = logMessages.join('\n');
+            console.log(logMsg);
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        async function testAuth() {
+            log('Iniciando test de autenticación...');
+            
+            try {
+                log('Llamando a /api/auth/check/...');
+                
+                const response = await fetch(API_BASE_URL + '/auth/check/', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                log(`Respuesta: ${response.status} ${response.statusText}`);
+                
+                const data = await response.json();
+                log(`Datos recibidos: ${JSON.stringify(data, null, 2)}`);
+
+                const authDiv = document.getElementById('authStatus');
+                if (data.authenticated) {
+                    authDiv.innerHTML = `<div class="success">✅ AUTENTICADO como: ${data.user.username} (${data.user.role})</div>`;
+                    log('✅ Usuario autenticado correctamente');
+                } else {
+                    authDiv.innerHTML = `<div class="error">❌ NO AUTENTICADO</div>`;
+                    log('❌ Usuario NO autenticado');
+                }
+
+                // Mostrar currentUser
+                document.getElementById('currentUserInfo').textContent = JSON.stringify(data.user || {}, null, 2);
+
+            } catch (error) {
+                log(`ERROR: ${error.message}`);
+                document.getElementById('authStatus').innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        function updateInfo() {
+            // Mostrar cookies
+            document.getElementById('cookiesInfo').textContent = document.cookie || 'No hay cookies';
+
+            // Mostrar localStorage
+            const storage = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                storage[key] = localStorage.getItem(key);
+            }
+            document.getElementById('localStorageInfo').textContent = JSON.stringify(storage, null, 2) || 'Vacío';
+        }
+
+        // Ejecutar al cargar
+        window.addEventListener('DOMContentLoaded', async () => {
+            log('Página cargada');
+            updateInfo();
+            await testAuth();
+        });
+
+        // Actualizar info cada 2 segundos
+        setInterval(updateInfo, 2000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,547 @@
+@import url('cargos-sanciones.css');
+
+.pagar-beneficio-header {
+    background: linear-gradient(135deg, #ff9800 0%, #e65100 100%);
+    border-bottom: 3px solid #ff9800;
+}
+
+.resumen-deudas-beneficios {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.deuda-card-mini {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #f44336;
+}
+
+.deuda-card-mini h4 {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+.deuda-numero {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #f44336;
+}
+
+.deuda-monto {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #f44336;
+}
+
+.beneficios-asignados {
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.beneficios-asignados h3 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #333;
+}
+
+.asignacion-card {
+    background: white;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #ff9800;
+    transition: all 0.3s ease;
+}
+
+.asignacion-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.asignacion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.asignacion-nombre {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #ff9800;
+}
+
+.asignacion-estado {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.asignacion-estado.pendiente {
+    background: #f44336;
+    color: white;
+}
+
+.asignacion-estado.parcial {
+    background: #ff9800;
+    color: white;
+}
+
+.asignacion-estado.pagado {
+    background: #4caf50;
+    color: white;
+}
+
+.asignacion-estado.vencido {
+    background: #d32f2f;
+    color: white;
+    animation: parpadeo 1.5s infinite;
+}
+
+.asignacion-estado.liberado {
+    background: #9e9e9e;
+    color: white;
+}
+
+@keyframes parpadeo {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.asignacion-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+}
+
+.asignacion-info div {
+    padding: 5px 0;
+}
+
+.asignacion-info strong {
+    color: #333;
+}
+
+.asignacion-card.vencido {
+    border: 2px solid #f44336;
+    box-shadow: 0 0 15px rgba(244, 67, 54, 0.3);
+}
+
+.btn-pagar-beneficio {
+    background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-pagar-beneficio:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+    background: linear-gradient(135deg, #66bb6a 0%, #388e3c 100%);
+}
+
+.form-header-pago {
+    background: linear-gradient(135deg, #ff9800 0%, #e65100 100%);
+    color: white;
+    padding: 20px;
+    margin: -30px -30px 20px -30px;
+    border-radius: 15px 15px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.form-header-pago h3 {
+    margin: 0;
+    color: white;
+}
+
+.info-beneficio-seleccionado {
+    background: rgba(255, 152, 0, 0.1);
+    border: 2px solid rgba(255, 152, 0, 0.3);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.info-beneficio h4 {
+    color: #ff9800;
+    margin-bottom: 15px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+/* ==================== MODALES NUEVOS ==================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content-beneficio {
+    background: white;
+    border-radius: 20px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header-beneficio {
+    background: linear-gradient(135deg, #ff9800 0%, #e65100 100%);
+    color: white;
+    padding: 25px;
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header-warning {
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+}
+
+.modal-header-beneficio h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: white;
+}
+
+.btn-cerrar-modal {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid white;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.5rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-cerrar-modal:hover {
+    background: white;
+    color: #ff9800;
+    transform: rotate(90deg);
+}
+
+.modal-body-beneficio {
+    padding: 30px;
+}
+
+.info-modal {
+    background: rgba(255, 152, 0, 0.1);
+    border: 2px solid rgba(255, 152, 0, 0.3);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.info-beneficio-modal p {
+    margin: 8px 0;
+    color: #333;
+}
+
+.info-beneficio-modal strong {
+    color: #ff9800;
+}
+
+.warning-box {
+    background: #fff3cd;
+    border-left: 5px solid #ff9800;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.warning-box strong {
+    color: #f57c00;
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.warning-box p {
+    margin: 8px 0;
+    color: #666;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    background: #f5f5f5;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.radio-option:hover {
+    border-color: #ff9800;
+    background: #fff3e0;
+}
+
+.radio-option input[type="radio"] {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    accent-color: #ff9800;
+}
+
+.radio-option span {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.radio-option input[type="radio"]:checked ~ span {
+    color: #ff9800;
+    font-weight: 700;
+}
+
+/* ==================== BOTONES ADICIONALES ==================== */
+.asignacion-botones {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-extra {
+    background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    flex: 1;
+    min-width: 140px;
+}
+
+.btn-extra:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+    background: linear-gradient(135deg, #66bb6a 0%, #388e3c 100%);
+}
+
+.btn-liberar {
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    flex: 1;
+    min-width: 160px;
+}
+
+.btn-liberar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+    background: linear-gradient(135deg, #ffb74d 0%, #ff8f00 100%);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(255, 152, 0, 0.4);
+}
+
+/* ==================== HISTORIAL DE PAGOS ==================== */
+.pago-card {
+    background: white;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #9c27b0;
+    transition: all 0.3s ease;
+}
+
+.pago-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.pago-card.tipo-extra {
+    border-left-color: #4caf50;
+}
+
+.pago-card.tipo-normal {
+    border-left-color: #1976d2;
+}
+
+.pago-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tipo-pago {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-left: 10px;
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.tipo-extra .tipo-pago {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.pago-monto {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #4caf50;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    .modal-content-beneficio {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .modal-body-beneficio {
+        padding: 20px;
+    }
+    
+    .asignacion-botones {
+        flex-direction: column;
+    }
+    
+    .btn-extra,
+    .btn-liberar,
+    .btn-pagar-beneficio {
+        width: 100%;
+        min-width: unset;
+    }
+    
+    .resumen-deudas-beneficios {
+        grid-template-columns: 1fr;
+    }
+    
+    .asignacion-info {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==================== ANIMACIONES DE PULSO ==================== */
+@keyframes pulso {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(244, 67, 54, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px rgba(244, 67, 54, 0.6);
+    }
+}
+
+.asignacion-card.vencido .asignacion-estado.pendiente,
+.asignacion-card.vencido .asignacion-estado.parcial {
+    animation: pulso 1.5s infinite;
+}

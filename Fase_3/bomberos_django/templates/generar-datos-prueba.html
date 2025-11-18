@@ -1,0 +1,335 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Generar Datos de Prueba</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #c41e3a;
+            margin-bottom: 20px;
+        }
+        button {
+            background: linear-gradient(135deg, #c41e3a 0%, #8b0000 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(196, 30, 58, 0.3);
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #2196f3;
+        }
+        .success {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+        #resultado {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 Generador de Datos de Prueba</h1>
+        
+        <div class="info">
+            <strong>ℹ️ Información:</strong><br>
+            Este generador creará asistencias y ranking de prueba en tu navegador.
+            Los datos se guardarán en localStorage y podrás verlos en el historial.
+        </div>
+
+        <button onclick="generarDatos()">🚀 Generar Datos de Prueba</button>
+        <button onclick="limpiarDatos()" style="background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);">
+            🗑️ Limpiar Todos los Datos
+        </button>
+        <button onclick="window.location.href='historial-asistencias.html'" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);">
+            📊 Ver Historial
+        </button>
+
+        <div id="resultado"></div>
+    </div>
+
+    <script>
+        function generarDatos() {
+            const resultado = document.getElementById('resultado');
+            
+            try {
+                // Crear asistencias de prueba
+                const asistencias = [];
+                const rankingAsistencias = {};
+                const añoActual = 2025;
+
+                // Bomberos de ejemplo
+                const bomberos = [
+                    {id: 1, nombre: "Juan Pérez López", clave: "B-001"},
+                    {id: 2, nombre: "María González Silva", clave: "B-002"},
+                    {id: 3, nombre: "Pedro Martínez Ruiz", clave: "B-003"},
+                    {id: 4, nombre: "Ana Rodríguez Castro", clave: "B-004"},
+                    {id: 5, nombre: "Carlos Fernández Mora", clave: "B-005"},
+                    {id: 6, nombre: "Laura Sánchez Vega", clave: "B-006"},
+                    {id: 7, nombre: "Diego Torres Ramírez", clave: "B-007"},
+                    {id: 8, nombre: "Sofia López Herrera", clave: "B-008"}
+                ];
+
+                // Inicializar ranking
+                rankingAsistencias[añoActual] = {};
+                bomberos.forEach(b => {
+                    rankingAsistencias[añoActual][b.id] = {
+                        nombre: b.nombre,
+                        claveBombero: b.clave,
+                        total: 0,
+                        emergencias: 0,
+                        asambleas: 0,
+                        ejercicios: 0,
+                        citaciones: 0,
+                        otras: 0
+                    };
+                });
+
+                // Función para obtener fecha aleatoria del último mes
+                function getFechaAleatoria() {
+                    const hoy = new Date();
+                    const hace30Dias = new Date();
+                    hace30Dias.setDate(hoy.getDate() - 30);
+                    const tiempo = hace30Dias.getTime() + Math.random() * (hoy.getTime() - hace30Dias.getTime());
+                    return new Date(tiempo).toISOString().split('T')[0];
+                }
+
+                // Función para seleccionar bomberos aleatorios
+                function seleccionarBomberosAleatorios() {
+                    const cantidad = Math.floor(Math.random() * 4) + 3; // 3-6 bomberos
+                    const seleccionados = [];
+                    const indices = [...Array(bomberos.length).keys()];
+                    
+                    for (let i = 0; i < cantidad; i++) {
+                        const idx = Math.floor(Math.random() * indices.length);
+                        const bombero = bomberos[indices[idx]];
+                        indices.splice(idx, 1);
+                        
+                        seleccionados.push({
+                            bomberoId: bombero.id,
+                            nombre: bombero.nombre,
+                            claveBombero: bombero.clave,
+                            categoria: "Voluntario",
+                            cargo: null
+                        });
+                    }
+                    return seleccionados;
+                }
+
+                // Actualizar ranking
+                function actualizarRanking(asistentes, tipo) {
+                    asistentes.forEach(a => {
+                        if (a.bomberoId && rankingAsistencias[añoActual][a.bomberoId]) {
+                            rankingAsistencias[añoActual][a.bomberoId].total++;
+                            switch(tipo) {
+                                case 'emergencia':
+                                    rankingAsistencias[añoActual][a.bomberoId].emergencias++;
+                                    break;
+                                case 'asamblea':
+                                    rankingAsistencias[añoActual][a.bomberoId].asambleas++;
+                                    break;
+                                case 'ejercicios':
+                                    rankingAsistencias[añoActual][a.bomberoId].ejercicios++;
+                                    break;
+                                case 'citaciones':
+                                    rankingAsistencias[añoActual][a.bomberoId].citaciones++;
+                                    break;
+                                case 'otras':
+                                    rankingAsistencias[añoActual][a.bomberoId].otras++;
+                                    break;
+                            }
+                        }
+                    });
+                }
+
+                // Generar 3 emergencias
+                for (let i = 0; i < 3; i++) {
+                    const asistentes = seleccionarBomberosAleatorios();
+                    const asistencia = {
+                        id: Date.now() + i,
+                        tipo: 'emergencia',
+                        fecha: getFechaAleatoria(),
+                        descripcion: `Incendio en zona ${['Norte', 'Sur', 'Centro'][i]}`,
+                        claveEmergencia: `EMG-${String(i + 1).padStart(3, '0')}`,
+                        asistentes: asistentes,
+                        totalAsistentes: asistentes.length,
+                        oficialesComandancia: Math.floor(asistentes.length * 0.2),
+                        oficialesCompania: Math.floor(asistentes.length * 0.3),
+                        totalOficiales: Math.floor(asistentes.length * 0.5),
+                        voluntarios: asistentes.length - Math.floor(asistentes.length * 0.5),
+                        participantes: 0,
+                        canjes: 0,
+                        fechaRegistro: new Date().toISOString()
+                    };
+                    asistencias.push(asistencia);
+                    actualizarRanking(asistentes, 'emergencia');
+                }
+
+                // Generar 2 asambleas
+                for (let i = 0; i < 2; i++) {
+                    const asistentes = seleccionarBomberosAleatorios();
+                    const asistencia = {
+                        id: Date.now() + 100 + i,
+                        tipo: 'asamblea',
+                        tipoAsamblea: i === 0 ? 'ordinaria' : 'extraordinaria',
+                        fecha: getFechaAleatoria(),
+                        descripcion: `Asamblea ${i === 0 ? 'Ordinaria' : 'Extraordinaria'} ${i + 1}`,
+                        asistentes: asistentes,
+                        totalAsistentes: asistentes.length,
+                        oficialesComandancia: Math.floor(asistentes.length * 0.2),
+                        oficialesCompania: Math.floor(asistentes.length * 0.3),
+                        totalOficiales: Math.floor(asistentes.length * 0.5),
+                        voluntarios: asistentes.length - Math.floor(asistentes.length * 0.5),
+                        participantes: 0,
+                        canjes: 0,
+                        fechaRegistro: new Date().toISOString()
+                    };
+                    asistencias.push(asistencia);
+                    actualizarRanking(asistentes, 'asamblea');
+                }
+
+                // Generar 2 ejercicios
+                for (let i = 0; i < 2; i++) {
+                    const asistentes = seleccionarBomberosAleatorios();
+                    const asistencia = {
+                        id: Date.now() + 200 + i,
+                        tipo: 'ejercicios',
+                        tipoEjercicio: i === 0 ? 'compañia' : 'cuerpo',
+                        fecha: getFechaAleatoria(),
+                        descripcion: `Ejercicio de ${i === 0 ? 'Compañía' : 'Cuerpo'} ${i + 1}`,
+                        asistentes: asistentes,
+                        totalAsistentes: asistentes.length,
+                        oficialesComandancia: Math.floor(asistentes.length * 0.2),
+                        oficialesCompania: Math.floor(asistentes.length * 0.3),
+                        totalOficiales: Math.floor(asistentes.length * 0.5),
+                        voluntarios: asistentes.length - Math.floor(asistentes.length * 0.5),
+                        participantes: 0,
+                        canjes: 0,
+                        fechaRegistro: new Date().toISOString()
+                    };
+                    asistencias.push(asistencia);
+                    actualizarRanking(asistentes, 'ejercicios');
+                }
+
+                // Generar 1 citación
+                const asistentesCitacion = seleccionarBomberosAleatorios();
+                asistencias.push({
+                    id: Date.now() + 300,
+                    tipo: 'citaciones',
+                    nombreCitacion: 'Reunión de Coordinación',
+                    fecha: getFechaAleatoria(),
+                    descripcion: 'Reunión de coordinación mensual',
+                    asistentes: asistentesCitacion,
+                    totalAsistentes: asistentesCitacion.length,
+                    oficialesComandancia: Math.floor(asistentesCitacion.length * 0.2),
+                    oficialesCompania: Math.floor(asistentesCitacion.length * 0.3),
+                    totalOficiales: Math.floor(asistentesCitacion.length * 0.5),
+                    voluntarios: asistentesCitacion.length - Math.floor(asistentesCitacion.length * 0.5),
+                    participantes: 0,
+                    canjes: 0,
+                    fechaRegistro: new Date().toISOString()
+                });
+                actualizarRanking(asistentesCitacion, 'citaciones');
+
+                // Generar 1 otra
+                const asistentesOtra = seleccionarBomberosAleatorios();
+                asistencias.push({
+                    id: Date.now() + 400,
+                    tipo: 'otras',
+                    motivo: 'Capacitación',
+                    fecha: getFechaAleatoria(),
+                    descripcion: 'Capacitación en primeros auxilios',
+                    asistentes: asistentesOtra,
+                    totalAsistentes: asistentesOtra.length,
+                    oficialesComandancia: Math.floor(asistentesOtra.length * 0.2),
+                    oficialesCompania: Math.floor(asistentesOtra.length * 0.3),
+                    totalOficiales: Math.floor(asistentesOtra.length * 0.5),
+                    voluntarios: asistentesOtra.length - Math.floor(asistentesOtra.length * 0.5),
+                    participantes: 0,
+                    canjes: 0,
+                    fechaRegistro: new Date().toISOString()
+                });
+                actualizarRanking(asistentesOtra, 'otras');
+
+                // Guardar en localStorage
+                localStorage.setItem('asistencias', JSON.stringify(asistencias));
+                localStorage.setItem('rankingAsistencias', JSON.stringify(rankingAsistencias));
+
+                // Mostrar resultado
+                resultado.style.display = 'block';
+                resultado.className = 'info success';
+                resultado.innerHTML = `
+                    <strong>✅ ¡Datos generados exitosamente!</strong><br><br>
+                    📊 Se generaron:<br>
+                    • ${asistencias.length} asistencias<br>
+                    • 3 emergencias<br>
+                    • 2 asambleas<br>
+                    • 2 ejercicios<br>
+                    • 1 citación<br>
+                    • 1 otra actividad<br>
+                    • Ranking para ${bomberos.length} bomberos<br><br>
+                    👉 Ahora puedes ir al <a href="historial-asistencias.html">Historial</a>
+                `;
+
+                console.log('✅ Datos generados:', {
+                    asistencias: asistencias.length,
+                    ranking: rankingAsistencias
+                });
+
+            } catch (error) {
+                resultado.style.display = 'block';
+                resultado.className = 'info';
+                resultado.style.background = '#ffebee';
+                resultado.style.borderLeftColor = '#f44336';
+                resultado.innerHTML = `<strong>❌ Error:</strong><br>${error.message}`;
+                console.error('Error:', error);
+            }
+        }
+
+        function limpiarDatos() {
+            if (confirm('¿Estás seguro de que quieres limpiar TODOS los datos?')) {
+                localStorage.removeItem('asistencias');
+                localStorage.removeItem('asistenciasEmergencias');
+                localStorage.removeItem('rankingAsistencias');
+                localStorage.removeItem('catalogoExternos');
+                
+                const resultado = document.getElementById('resultado');
+                resultado.style.display = 'block';
+                resultado.className = 'info';
+                resultado.style.background = '#fff3e0';
+                resultado.style.borderLeftColor = '#ff9800';
+                resultado.innerHTML = '<strong>🗑️ Datos limpiados</strong><br>Todos los datos han sido eliminados.';
+            }
+        }
+    </script>
+</body>
+</html>

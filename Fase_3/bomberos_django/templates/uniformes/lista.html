@@ -1,0 +1,64 @@
+{% load static %}
+{% extends 'base.html' %}
+
+{% block title %}Uniformes{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between;">
+    <h2>👔 Inventario de Uniformes</h2>
+    <div>
+        <a href="{% url 'crear_uniforme' %}" class="btn btn-primary">➕ Nuevo Uniforme</a>
+        <a href="{% url 'entregar_uniforme' %}" class="btn btn-primary" style="margin-left: 10px;">📤 Entregar</a>
+    </div>
+</div>
+
+<div style="background: white; padding: 20px; border-radius: 12px;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f8f9fa; border-bottom: 2px solid #e0e0e0;">
+                <th style="padding: 12px;">Código</th>
+                <th style="padding: 12px;">Tipo</th>
+                <th style="padding: 12px;">Condición</th>
+                <th style="padding: 12px;">Estado</th>
+                <th style="padding: 12px;">Disponible</th>
+                <th style="padding: 12px;">Componentes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for uniforme in uniformes %}
+            <tr style="border-bottom: 1px solid #e0e0e0;">
+                <td style="padding: 12px; font-weight: 600;">{{ uniforme.codigo }}</td>
+                <td style="padding: 12px;">
+                    <span style="padding: 4px 12px; border-radius: 12px; font-weight: 600;
+                                 {% if uniforme.tipo == 'estructural' %}background: #fed7aa; color: #9a3412;
+                                 {% elif uniforme.tipo == 'forestal' %}background: #d1fae5; color: #065f46;
+                                 {% else %}background: #fee2e2; color: #991b1b;{% endif %}">
+                        {{ uniforme.get_tipo_display }}
+                    </span>
+                </td>
+                <td style="padding: 12px;">{{ uniforme.get_condicion_display }}</td>
+                <td style="padding: 12px;">{{ uniforme.get_estado_fisico_display }}</td>
+                <td style="padding: 12px;">
+                    {% if uniforme.disponible %}
+                        <span style="color: #10b981;">✅ Sí</span>
+                    {% else %}
+                        <span style="color: #ef4444;">❌ No</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 12px; font-size: 0.85rem;">
+                    {% if uniforme.tiene_jardinera %}🧥 Jardinera{% endif %}
+                    {% if uniforme.tiene_chaqueta %}👕 Chaqueta{% endif %}
+                    {% if uniforme.tiene_casco %}⛑️ Casco{% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="padding: 40px; text-align: center;">No hay uniformes registrados</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<a href="{% url 'sistema' %}" class="btn btn-secondary" style="margin-top: 20px;">← Volver</a>
+{% endblock %}

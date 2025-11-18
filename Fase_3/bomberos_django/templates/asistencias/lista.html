@@ -1,0 +1,52 @@
+{% load static %}
+{% extends 'base.html' %}
+
+{% block title %}Lista de Asistencias{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between;">
+    <h2>📊 Asistencias Registradas</h2>
+    <a href="{% url 'registrar_asistencia' %}" class="btn btn-primary">➕ Registrar Asistencia</a>
+</div>
+
+<div style="background: white; padding: 20px; border-radius: 12px;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f8f9fa; border-bottom: 2px solid #e0e0e0;">
+                <th style="padding: 12px; text-align: left;">Voluntario</th>
+                <th style="padding: 12px; text-align: left;">Tipo</th>
+                <th style="padding: 12px; text-align: left;">Fecha</th>
+                <th style="padding: 12px; text-align: left;">Estado</th>
+                <th style="padding: 12px; text-align: left;">Justificada</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for asist in asistencias %}
+            <tr style="border-bottom: 1px solid #e0e0e0;">
+                <td style="padding: 12px;">{{ asist.voluntario.nombre_completo }}</td>
+                <td style="padding: 12px;">{{ asist.tipo_asistencia.nombre }}</td>
+                <td style="padding: 12px;">{{ asist.fecha_hora|date:"d/m/Y H:i" }}</td>
+                <td style="padding: 12px;">
+                    {% if asist.presente %}
+                        <span style="padding: 4px 12px; background: #d1fae5; color: #065f46; border-radius: 12px;">✅ Presente</span>
+                    {% else %}
+                        <span style="padding: 4px 12px; background: #fee2e2; color: #991b1b; border-radius: 12px;">❌ Ausente</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 12px;">
+                    {% if asist.justificada %}✅{% else %}-{% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="padding: 40px; text-align: center;">No hay asistencias registradas</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div style="margin-top: 20px; text-align: center;">
+    <a href="{% url 'sistema' %}" class="btn btn-secondary">← Volver</a>
+</div>
+{% endblock %}

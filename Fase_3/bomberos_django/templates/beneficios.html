@@ -1,0 +1,220 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyecto SEIS - Administración de Beneficios</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/global-profesional.css' %}">
+    <link rel="stylesheet" href="{% static 'css/beneficios.css' %}">
+    <link rel="stylesheet" href="{% static 'css/tema-bomberil.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- AGREGAR ESTAS DOS LÍNEAS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <div class="page-container beneficios-page">
+        <div class="container">
+            <div class="page-header beneficios-header">
+                <h2>🎪 ADMINISTRACIÓN DE BENEFICIOS</h2>
+                <p>Gestión de Eventos y Control de Deudores</p>
+            </div>
+
+            <div class="page-content">
+                <div id="mensajeBeneficios" class="mensaje-global" style="display: none;"></div>
+
+                <!-- Dashboard de Estadísticas Mejorado -->
+                <div class="dashboard-stats">
+                    <div class="stat-card-modern card-beneficios">
+                        <div class="stat-icon">🎫</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Beneficios Activos</div>
+                            <div class="stat-value" id="totalBeneficiosActivos">0</div>
+                            <div class="stat-progress">
+                                <div class="progress-bar" id="progressBeneficiosActivos"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card-modern card-esperado">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Total Esperado</div>
+                            <div class="stat-value" id="totalEsperado">$0</div>
+                            <div class="stat-percentage" id="porcentajeEsperado">100%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card-modern card-recaudado">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Total Recaudado</div>
+                            <div class="stat-value" id="totalRecaudado">$0</div>
+                            <div class="stat-percentage" id="porcentajeRecaudado">0%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card-modern card-deudores">
+                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Deudores</div>
+                            <div class="stat-value" id="totalDeudores">0</div>
+                            <div class="stat-percentage" id="porcentajeDeudores">0%</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card-modern card-eficiencia">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Eficiencia de Cobro</div>
+                            <div class="stat-value" id="eficienciaGeneral">0%</div>
+                            <div class="stat-trend" id="trendEficiencia"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario Crear Beneficio (sin cambios) -->
+                <div class="form-container">
+                    <h3>🎪 Crear Nuevo Beneficio</h3>
+                    
+                    <form id="formCrearBeneficio">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="tipoBeneficio" class="required">Tipo de Beneficio</label>
+                                <select id="tipoBeneficio" name="tipoBeneficio" required>
+                                    <option value="">Seleccione tipo</option>
+                                    <option value="Curanto">🍲 Curanto</option>
+                                    <option value="Bingo">🎰 Bingo</option>
+                                    <option value="Rifa">🎫 Rifa</option>
+                                    <option value="Asado">🥩 Asado</option>
+                                    <option value="Otro">📌 Otro</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="nombreBeneficio" class="required">Nombre del Evento</label>
+                                <input type="text" id="nombreBeneficio" name="nombreBeneficio" required 
+                                       placeholder="Ej: Curanto Mayo 2025">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="fechaEvento" class="required">Fecha del Evento</label>
+                                <input type="date" id="fechaEvento" name="fechaEvento" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="fechaLimiteRendicion" class="required">Fecha Límite Rendición</label>
+                                <input type="date" id="fechaLimiteRendicion" name="fechaLimiteRendicion" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="precioTarjeta" class="required">Precio por Tarjeta (CLP)</label>
+                                <input type="number" id="precioTarjeta" name="precioTarjeta" required 
+                                       min="100" step="100" placeholder="Ej: 8000">
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label class="required">Tarjetas por Categoría</label>
+                                <div class="categorias-grid">
+                                    <div class="categoria-input">
+                                        <label>👤 Voluntarios Regulares</label>
+                                        <input type="number" id="tarjetasVoluntarios" name="tarjetasVoluntarios" 
+                                               required min="0" value="8" placeholder="Ej: 8">
+                                    </div>
+                                    
+                                    <div class="categoria-input">
+                                        <label>🏅 Honorarios de Compañía</label>
+                                        <input type="number" id="tarjetasHonorariosCia" name="tarjetasHonorariosCia" 
+                                               required min="0" value="5" placeholder="Ej: 5">
+                                    </div>
+                                    
+                                    <div class="categoria-input">
+                                        <label>🎖️ Honorarios del Cuerpo</label>
+                                        <input type="number" id="tarjetasHonorariosCuerpo" name="tarjetasHonorariosCuerpo" 
+                                               required min="0" value="3" placeholder="Ej: 3">
+                                    </div>
+                                    
+                                    <div class="categoria-input">
+                                        <label>🏆 Insignes de Chile</label>
+                                        <input type="number" id="tarjetasInsignes" name="tarjetasInsignes" 
+                                               required min="0" value="2" placeholder="Ej: 2">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="descripcionBeneficio" class="opcional">Descripción</label>
+                                <textarea id="descripcionBeneficio" name="descripcionBeneficio" rows="3" 
+                                          placeholder="Descripción del beneficio"></textarea>
+                            </div>
+
+                            <div class="info-nota">
+                                💡 <strong>Nota:</strong> Al crear el beneficio, se asignará automáticamente a TODOS los bomberos registrados según su categoría de antigüedad.
+                            </div>
+                        </div>
+
+                        <div class="buttons">
+                            <button type="submit" class="btn btn-beneficio">🎪 Crear Beneficio y Asignar</button>
+                            <button type="button" class="btn btn-secondary" onclick="beneficiosSistema.limpiarFormulario()">Limpiar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Lista de Beneficios Mejorada -->
+                <div class="list-container-modern">
+                   <div class="list-header-modern">
+    <h3>📚 Beneficios Registrados</h3>
+    <div class="filtros-beneficios">
+        <select id="filtroAnio" onchange="beneficiosSistema.aplicarFiltros()">
+            <option value="todos">Todos los años</option>
+        </select>
+        <select id="filtroBeneficios" onchange="beneficiosSistema.aplicarFiltros()">
+            <option value="todos">Todos los estados</option>
+            <option value="activo">Activos</option>
+            <option value="cerrado">Cerrados</option>
+            <option value="vencido">Vencidos</option>
+        </select>
+        <button type="button" class="btn btn-excel" onclick="beneficiosSistema.exportarExcel()">
+            📊 Exportar Excel
+        </button>
+        <!-- AGREGAR ESTE BOTÓN NUEVO -->
+        <button type="button" class="btn btn-log-auditoria" 
+                onclick="beneficiosSistema.verLogAuditoriaBeneficios()">
+            📋 Ver Log de Auditoría
+        </button>
+    </div>
+</div>
+                    <div class="contador-beneficios">
+                        Mostrando <strong id="totalBeneficiosMostrados">0</strong> de <strong id="totalBeneficios">0</strong> beneficios
+                    </div>
+                    
+                    <div id="listaBeneficios" class="lista-beneficios-grid"></div>
+                </div>
+
+                <!-- Gráfico de Deudores Mejorado -->
+                <div class="graficos-container">
+                    <div class="grafico-card">
+                        <h3>📊 Estadísticas de Deudores por Beneficio</h3>
+                        <canvas id="graficoDeudores"></canvas>
+                    </div>
+                    
+                    <div class="grafico-card">
+                        <h3>💰 Eficiencia de Recaudación</h3>
+                        <canvas id="graficoEficiencia"></canvas>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button type="button" class="btn btn-volver" onclick="beneficiosSistema.volverAlSistema()">
+                        ← Regresar al Sistema Principal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/beneficios-django.js' %}?v=8.0"></script>
+</body>
+</html>

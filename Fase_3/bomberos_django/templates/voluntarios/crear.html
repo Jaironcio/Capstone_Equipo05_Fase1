@@ -1,0 +1,86 @@
+{% load static %}
+{% extends 'form_base.html' %}
+
+{% block form_title %}➕ Crear Nuevo Voluntario{% endblock %}
+{% block form_subtitle %}Ingrese los datos del nuevo voluntario{% endblock %}
+
+{% block form_content %}
+<div class="form-grid">
+    <div class="form-group">
+        <label for="{{ form.nombre.id_for_label }}">Nombre *</label>
+        {{ form.nombre }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.apellido_paterno.id_for_label }}">Apellido Paterno *</label>
+        {{ form.apellido_paterno }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.apellido_materno.id_for_label }}">Apellido Materno</label>
+        {{ form.apellido_materno }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.rut.id_for_label }}">RUT *</label>
+        {{ form.rut }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.clave_bombero.id_for_label }}">Clave Bombero *</label>
+        {{ form.clave_bombero }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.fecha_nacimiento.id_for_label }}">Fecha de Nacimiento *</label>
+        {{ form.fecha_nacimiento }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.fecha_ingreso.id_for_label }}">Fecha de Ingreso *</label>
+        {{ form.fecha_ingreso }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.compania.id_for_label }}">Compañía</label>
+        {{ form.compania }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.domicilio.id_for_label }}">Domicilio</label>
+        {{ form.domicilio }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.telefono.id_for_label }}">Teléfono</label>
+        {{ form.telefono }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.email.id_for_label }}">Email</label>
+        {{ form.email }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.profesion.id_for_label }}">Profesión</label>
+        {{ form.profesion }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.grupo_sanguineo.id_for_label }}">Grupo Sanguíneo</label>
+        {{ form.grupo_sanguineo }}
+    </div>
+    
+    <div class="form-group">
+        <label for="{{ form.nro_registro.id_for_label }}">Nº Registro</label>
+        {{ form.nro_registro }}
+    </div>
+    
+    <div class="form-group" style="grid-column: span 2;">
+        <label for="{{ form.foto.id_for_label }}">Fotografía</label>
+        {{ form.foto }}
+    </div>
+</div>
+{% endblock %}
+
+{% block btn_text %}✅ Crear Voluntario{% endblock %}

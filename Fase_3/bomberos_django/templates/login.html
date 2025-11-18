@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyecto SEIS - Login</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+    <div class="login-screen" id="loginScreen">
+        <div class="background-particles" id="particles"></div>
+        
+        <div class="login-container">
+            <h1 class="login-title">Login</h1>
+            <form method="post" id="loginForm">
+                {% csrf_token %}
+                
+                <div class="login-form-group">
+                    <label for="username" class="login-label">Usuario</label>
+                    <input type="text" id="username" name="username" class="login-input" placeholder="Ingresa tu usuario" required>
+                </div>
+                
+                <div class="login-form-group">
+                    <label for="password" class="login-label">Password</label>
+                    <input type="password" id="password" name="password" class="login-input" placeholder="Ingresa tu contraseña" required>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    INICIAR SESIÓN
+                </button>
+                
+                <div class="error-message" id="errorMessage">
+                    {% if messages %}
+                        {% for message in messages %}
+                            {% if message.tags == 'error' %}{{ message }}{% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="success-message" id="successMessage">
+                    {% if messages %}
+                        {% for message in messages %}
+                            {% if message.tags == 'success' %}{{ message }}{% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Crear partículas animadas
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 6 + 's';
+            particlesContainer.appendChild(particle);
+        }
+        
+        // Mostrar mensajes si existen
+        const errorMsg = document.getElementById('errorMessage');
+        const successMsg = document.getElementById('successMessage');
+        if (errorMsg.textContent.trim()) {
+            errorMsg.classList.add('show');
+        }
+        if (successMsg.textContent.trim()) {
+            successMsg.classList.add('show');
+        }
+
+        // Manejo del formulario con loading state
+        const loginForm = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        loginForm.addEventListener('submit', function(e) {
+            submitBtn.classList.add('loading');
+            submitBtn.textContent = 'VALIDANDO...';
+        });
+
+        // Mostrar usuarios disponibles en consola
+        console.log('=== SISTEMA DE LOGIN ===');
+        console.log('Usuarios disponibles:');
+        console.log('👤 director    | 🔑 dir2024   | 🎭 Director');
+        console.log('👤 secretario  | 🔑 sec2024   | 🎭 Secretario');
+        console.log('👤 tesorero    | 🔑 tes2024   | 🎭 Tesorero');
+        console.log('👤 capitan     | 🔑 cap2024   | 🎭 Capitán');
+        console.log('👤 ayudante    | 🔑 ayu2024   | 🎭 Ayudante');
+        console.log('👤 superadmin  | 🔑 admin2024 | 🎭 Super Administrador');
+    </script>
+</body>
+</html>

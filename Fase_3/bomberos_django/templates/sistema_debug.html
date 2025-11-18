@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Debug - P6P</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #1976d2;
+            margin: 0 0 20px 0;
+        }
+        h2 {
+            color: #333;
+            margin: 20px 0 10px 0;
+            font-size: 20px;
+        }
+        .status {
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+        .info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            color: #0c5460;
+        }
+        pre {
+            background: #263238;
+            color: #aed581;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        button {
+            padding: 14px 28px;
+            margin: 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .btn-test {
+            background: #4caf50;
+            color: white;
+        }
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+        }
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+        .btn-primary {
+            background: #2196f3;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🔍 Sistema P6P - Modo Debug</h1>
+            <div class="info">
+                ✅ Esta página NO redirige automáticamente<br>
+                📋 Usa esta página para diagnosticar problemas de autenticación
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🎯 Test de Autenticación</h2>
+            <div id="authResult" class="status warning">
+                Presiona el botón para verificar...
+            </div>
+            <button class="btn-test" onclick="testAuth()">🔄 Test Auth</button>
+            <button class="btn-warning" onclick="location.href='/test-auth.html'">📄 Página Test Auth</button>
+        </div>
+
+        <div class="card">
+            <h2>🍪 Cookies</h2>
+            <pre id="cookiesInfo">Cargando...</pre>
+        </div>
+
+        <div class="card">
+            <h2>💾 LocalStorage</h2>
+            <pre id="localStorageInfo">Cargando...</pre>
+        </div>
+
+        <div class="card">
+            <h2>📊 Datos del Usuario</h2>
+            <pre id="userDataInfo">Cargando...</pre>
+        </div>
+
+        <div class="card">
+            <h2>🚀 Navegación</h2>
+            <button class="btn-primary" onclick="location.href='/'">← Volver al Login</button>
+            <button class="btn-danger" onclick="clearAllAndLogout()">🗑️ Limpiar Todo y Logout</button>
+        </div>
+    </div>
+
+    <script>
+        console.log('=== SISTEMA DEBUG CARGADO ===');
+        
+        // Actualizar información al cargar
+        window.addEventListener('DOMContentLoaded', function() {
+            updateInfo();
+        });
+
+        function updateInfo() {
+            // Cookies
+            document.getElementById('cookiesInfo').textContent = document.cookie || 'Sin cookies';
+
+            // LocalStorage
+            const storage = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                try {
+                    storage[key] = JSON.parse(localStorage.getItem(key));
+                } catch {
+                    storage[key] = localStorage.getItem(key);
+                }
+            }
+            document.getElementById('localStorageInfo').textContent = JSON.stringify(storage, null, 2) || 'Vacío';
+
+            // Usuario
+            const userData = {
+                'window.currentUser': window.currentUser || null,
+                'localStorage currentUser': localStorage.getItem('currentUser') ? JSON.parse(localStorage.getItem('currentUser')) : null
+            };
+            document.getElementById('userDataInfo').textContent = JSON.stringify(userData, null, 2);
+        }
+
+        async function testAuth() {
+            const resultDiv = document.getElementById('authResult');
+            resultDiv.className = 'status warning';
+            resultDiv.textContent = '⏳ Verificando autenticación...';
+
+            try {
+                const response = await fetch('/api/auth/check/', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                console.log('Response:', response.status, response.statusText);
+
+                if (!response.ok) {
+                    resultDiv.className = 'status error';
+                    resultDiv.textContent = `❌ ERROR: ${response.status} ${response.statusText}`;
+                    return;
+                }
+
+                const data = await response.json();
+                console.log('Data:', data);
+
+                if (data.authenticated && data.user) {
+                    resultDiv.className = 'status success';
+                    resultDiv.innerHTML = `
+                        ✅ <strong>AUTENTICADO</strong><br>
+                        👤 Usuario: ${data.user.username}<br>
+                        🎭 Rol: ${data.user.role}<br>
+                        🔑 Permisos: ${Object.keys(data.user.permissions || {}).length} módulos
+                    `;
+                } else {
+                    resultDiv.className = 'status error';
+                    resultDiv.textContent = '❌ NO AUTENTICADO - La sesión no existe o expiró';
+                }
+
+                updateInfo();
+
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.className = 'status error';
+                resultDiv.innerHTML = `
+                    ❌ <strong>ERROR AL CONECTAR</strong><br>
+                    ${error.message}
+                `;
+            }
+        }
+
+        async function clearAllAndLogout() {
+            if (!confirm('¿Limpiar todo y cerrar sesión?')) return;
+
+            try {
+                await fetch('/api/auth/logout/', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+            } catch (e) {
+                console.error('Error logout:', e);
+            }
+
+            localStorage.clear();
+            sessionStorage.clear();
+            location.href = '/';
+        }
+    </script>
+</body>
+</html>

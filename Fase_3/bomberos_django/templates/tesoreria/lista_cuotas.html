@@ -1,0 +1,43 @@
+{% load static %}
+{% extends 'base.html' %}
+
+{% block title %}Cuotas{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between;">
+    <h2>💰 Cuotas Mensuales</h2>
+    <div>
+        <a href="{% url 'crear_cuota' %}" class="btn btn-primary">➕ Nueva Cuota</a>
+        <a href="{% url 'pagar_cuota' %}" class="btn btn-primary" style="margin-left: 10px;">💵 Registrar Pago</a>
+    </div>
+</div>
+
+<div style="background: white; padding: 20px; border-radius: 12px;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f8f9fa; border-bottom: 2px solid #e0e0e0;">
+                <th style="padding: 12px;">Mes</th>
+                <th style="padding: 12px;">Año</th>
+                <th style="padding: 12px;">Monto</th>
+                <th style="padding: 12px;">Descripción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cuota in cuotas %}
+            <tr style="border-bottom: 1px solid #e0e0e0;">
+                <td style="padding: 12px;">{{ cuota.mes }}</td>
+                <td style="padding: 12px;">{{ cuota.anio }}</td>
+                <td style="padding: 12px; font-weight: 600; color: #10b981;">${{ cuota.monto }}</td>
+                <td style="padding: 12px;">{{ cuota.descripcion|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" style="padding: 40px; text-align: center;">No hay cuotas registradas</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<a href="{% url 'sistema' %}" class="btn btn-secondary" style="margin-top: 20px;">← Volver</a>
+{% endblock %}

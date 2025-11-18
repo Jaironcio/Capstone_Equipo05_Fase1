@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Asignaciones de Beneficios</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .pendiente {
+            color: #f44336;
+            font-weight: bold;
+        }
+        .pagado {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-left: 4px solid #2196F3;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Verificación de Asignaciones de Beneficios</h1>
+    
+    <div class="info">
+        <strong>Esta página muestra todas las asignaciones de beneficios en el sistema.</strong><br>
+        Abre la consola del navegador (F12) para ver más detalles.
+    </div>
+
+    <div id="resultado"></div>
+
+    <script src="{% static 'js/storage.js' %}"></script>
+    <script>
+        console.log('🔍 VERIFICANDO ASIGNACIONES DE BENEFICIOS...');
+        
+        const bomberos = storage.getBomberos();
+        const beneficios = storage.getBeneficios();
+        const asignaciones = storage.getAsignacionesBeneficios();
+        
+        console.log('📊 Total de bomberos:', bomberos.length);
+        console.log('📊 Total de beneficios:', beneficios.length);
+        console.log('📊 Total de asignaciones:', asignaciones.length);
+        
+        let html = '<h2>Bomberos y sus IDs</h2><table>';
+        html += '<tr><th>ID</th><th>Tipo de ID</th><th>Nombre</th><th>Clave</th></tr>';
+        bomberos.forEach(b => {
+            const nombreCompleto = [b.nombre, b.apellidoPaterno, b.apellidoMaterno].filter(x => x).join(' ') || 'Sin nombre';
+            html += `<tr><td>${b.id}</td><td>${typeof b.id}</td><td>${nombreCompleto}</td><td>${b.claveBombero}</td></tr>`;
+            console.log(`Bombero: ID=${b.id} (${typeof b.id}), Clave=${b.claveBombero}, Nombre=${nombreCompleto}, Campos:`, Object.keys(b));
+        });
+        html += '</table>';
+        
+        html += '<h2>Asignaciones de Beneficios</h2>';
+        
+        if (asignaciones.length === 0) {
+            html += '<p style="color: #f44336;"><strong>⚠️ NO HAY ASIGNACIONES DE BENEFICIOS</strong></p>';
+        } else {
+            html += '<table>';
+            html += '<tr><th>ID Asignación</th><th>bomberoId</th><th>Clave Bombero</th><th>Nombre Bombero</th><th>Beneficio</th><th>Estado Pago</th><th>Monto Esperado</th><th>Monto Pagado</th><th>Deuda</th><th>¿Encontrado?</th></tr>';
+            
+            asignaciones.forEach(asig => {
+                const bombero = bomberos.find(b => b.id == asig.bomberoId);
+                const beneficio = beneficios.find(b => b.id === asig.beneficioId);
+                const deuda = asig.montoEsperado - asig.montoPagado;
+                const estadoClass = asig.estadoPago === 'pendiente' || asig.estadoPago === 'parcial' ? 'pendiente' : 'pagado';
+                
+                const nombreBombero = bombero ? [bombero.nombre, bombero.apellidoPaterno, bombero.apellidoMaterno].filter(x => x).join(' ') || 'Sin nombre' : 'NO ENCONTRADO';
+                
+                html += `<tr style="${!bombero ? 'background: #ffebee;' : ''}">
+                    <td>${asig.id}</td>
+                    <td>${asig.bomberoId} (${typeof asig.bomberoId})</td>
+                    <td>${asig.claveBombero || 'N/A'}</td>
+                    <td>${bombero ? `${nombreBombero} (Clave: ${bombero.claveBombero})` : '❌ NO ENCONTRADO'}</td>
+                    <td>${beneficio ? beneficio.nombre : 'NO ENCONTRADO'}</td>
+                    <td class="${estadoClass}">${asig.estadoPago}</td>
+                    <td>$${asig.montoEsperado.toLocaleString('es-CL')}</td>
+                    <td>$${asig.montoPagado.toLocaleString('es-CL')}</td>
+                    <td>$${deuda.toLocaleString('es-CL')}</td>
+                    <td>${bombero ? '✅ SÍ' : '❌ NO'}</td>
+                </tr>`;
+                
+                console.log(`Asignación: bomberoId=${asig.bomberoId} (${typeof asig.bomberoId}), claveBombero=${asig.claveBombero}, Bombero encontrado:`, bombero ? `${nombreBombero} (Clave: ${bombero.claveBombero})` : 'NO ENCONTRADO');
+            });
+            html += '</table>';
+        }
+        
+        document.getElementById('resultado').innerHTML = html;
+        
+        console.log('✅ Verificación completa');
+    </script>
+</body>
+</html>

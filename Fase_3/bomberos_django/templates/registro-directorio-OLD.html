@@ -1,0 +1,324 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Directorio de Cía - Sistema Bomberos</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js\' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/global-profesional.css' %}">
+</head>
+<body>
+    <div class="main-system">
+        <div class="page-header">
+            <button type="button" class="btn btn-volver" onclick="window.location.href='tipos-asistencia.html'" style="position: absolute; left: 20px; top: 20px;">
+                ← Volver
+            </button>
+            <h2>👔 REGISTRO DE DIRECTORIO DE COMPAÑÍA</h2>
+            <p>Sistema de Control de Asistencia - Solo Oficiales y Cargos de Confianza</p>
+        </div>
+
+        <div class="page-content">
+            <!-- DATOS DEL DIRECTORIO -->
+            <div class="datos-directorio">
+                <h3>📋 Datos de la Reunión</h3>
+                
+                <div class="info-box">
+                    <strong>ℹ️ Importante:</strong> Solo se mostrarán los oficiales de compañía y cargos de confianza activos.
+                </div>
+                
+                <form id="formDirectorio">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="required">Fecha</label>
+                            <input type="date" id="fecha" name="fecha" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="required">Hora de Inicio</label>
+                            <input type="time" id="horaInicio" name="horaInicio" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="required">Hora de Término</label>
+                            <input type="time" id="horaTermino" name="horaTermino" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Observaciones</label>
+                        <textarea id="observaciones" name="observaciones" rows="3" placeholder="Temas tratados, acuerdos, etc."></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <!-- ASISTENCIA -->
+            <div id="seccionAsistencia" style="display: none;">
+                <!-- Se llena dinámicamente -->
+            </div>
+
+            <div class="form-actions" style="text-align: center; margin-top: 30px;">
+                <button type="button" class="btn-guardar" onclick="guardarDirectorio()">
+                    💾 Guardar Asistencia
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/auth_django.js' %}"></script>
+    <script src="{% static 'js/utils.js' %}"></script>
+    <script src="{% static 'js/asistencias-genericas-django.js' %}?v=3.0"></script>
+    <script>console.log('✅ Directorio v1.0 - Sistema Django Genérico');</script>
+    <script>
+        let directorioSistema;
+        window.addEventListener('load', function() {
+            directorioSistema = new SistemaAsistenciasGenericas('directorio');
+        });
+        
+        async function guardarDirectorio() {
+            if (directorioSistema) {
+                await directorioSistema.guardarRegistro();
+            }
+        }
+    </script>
+</body>
+</html>
+                this.cargos = storage.getCargos();
+                console.log('📊 Bomberos cargados:', this.bomberos.length);
+                console.log('🎖️ Cargos cargados:', this.cargos.length);
+            }
+            
+            configurarFechaActual() {
+                const hoy = new Date().toISOString().split('T')[0];
+                document.getElementById('fecha').value = hoy;
+                
+                // Hora actual
+                const ahora = new Date();
+                const horaActual = `${String(ahora.getHours()).padStart(2, '0')}:${String(ahora.getMinutes()).padStart(2, '0')}`;
+                document.getElementById('horaInicio').value = horaActual;
+            }
+            
+            obtenerCargoVigente(bomberoId) {
+                const anioActual = new Date().getFullYear();
+                const fechaActual = new Date();
+                fechaActual.setHours(0, 0, 0, 0);
+                
+                const cargosBombero = this.cargos.filter(c => c.bomberoId == bomberoId);
+                if (cargosBombero.length === 0) return null;
+                
+                let cargoVigente = cargosBombero.find(cargo => {
+                    if (cargo.fechaFinCargo) {
+                        const fin = new Date(cargo.fechaFinCargo);
+                        fin.setHours(23, 59, 59, 999);
+                        if (fechaActual > fin) return false;
+                    }
+                    
+                    if (cargo.añoCargo && !cargo.fechaInicioCargo && cargo.añoCargo != anioActual) {
+                        return false;
+                    }
+                    
+                    if (cargo.fechaInicioCargo && cargo.fechaFinCargo) {
+                        const inicio = new Date(cargo.fechaInicioCargo);
+                        inicio.setHours(0, 0, 0, 0);
+                        const fin = new Date(cargo.fechaFinCargo);
+                        fin.setHours(23, 59, 59, 999);
+                        return fechaActual >= inicio && fechaActual <= fin;
+                    }
+                    
+                    if (cargo.fechaInicioCargo) {
+                        const inicio = new Date(cargo.fechaInicioCargo);
+                        inicio.setHours(0, 0, 0, 0);
+                        return fechaActual >= inicio;
+                    }
+                    
+                    return true;
+                });
+                
+                return cargoVigente;
+            }
+            
+            esCargoOficialCompania(tipoCargo) {
+                const cargosOficiales = [
+                    'Capitán', 'Teniente Primero', 'Teniente Segundo', 
+                    'Ayudante'
+                ];
+                return cargosOficiales.includes(tipoCargo);
+            }
+            
+            esCargoConfianza(tipoCargo) {
+                const cargosConfianza = [
+                    'Secretario', 'Secretario Adjunto', 'Tesorero', 'Tesorero Adjunto',
+                    'Representante', 'Director', 'Inspector'
+                ];
+                return cargosConfianza.includes(tipoCargo);
+            }
+            
+            renderizarAsistencia() {
+                const bomberosActivos = this.bomberos.filter(b => 
+                    b.estadoBombero !== 'Dado de Baja' && 
+                    b.estadoBombero !== 'inactivo'
+                );
+                
+                const oficialesCompania = [];
+                const cargosConfianza = [];
+                
+                bomberosActivos.forEach(bombero => {
+                    const cargoVigente = this.obtenerCargoVigente(bombero.id);
+                    
+                    if (cargoVigente && this.esCargoOficialCompania(cargoVigente.tipoCargo)) {
+                        oficialesCompania.push({...bombero, cargo: cargoVigente});
+                    } else if (cargoVigente && this.esCargoConfianza(cargoVigente.tipoCargo)) {
+                        cargosConfianza.push({...bombero, cargo: cargoVigente});
+                    }
+                });
+                
+                console.log('📊 Oficiales de Compañía:', oficialesCompania.length);
+                console.log('📊 Cargos de Confianza:', cargosConfianza.length);
+                
+                let html = `
+                    <div class="asistencia-container">
+                        <div class="categoria-seccion">
+                            <div class="categoria-header" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);">
+                                <h3>📋 OFICIALES DE COMPAÑÍA</h3>
+                                <div class="categoria-acciones">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" onchange="directorio.toggleCategoria('oficiales', this.checked)">
+                                        <span>✓ Todos</span>
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" onchange="directorio.toggleCategoria('oficiales', false)">
+                                        <span>✗ Ninguno</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="voluntarios-lista" id="listaOficiales">
+                ${this.generarListaVoluntarios(oficialesCompania, 'oficiales')}
+                            </div>
+                        </div>
+                        
+                        <div class="categoria-seccion">
+                            <div class="categoria-header" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
+                                <h3>🔧 CARGOS DE CONFIANZA</h3>
+                                <div class="categoria-acciones">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" onchange="directorio.toggleCategoria('confianza', this.checked)">
+                                        <span>✓ Todos</span>
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" onchange="directorio.toggleCategoria('confianza', false)">
+                                        <span>✗ Ninguno</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="voluntarios-lista" id="listaConfianza">
+                ${this.generarListaVoluntarios(cargosConfianza, 'confianza')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('seccionAsistencia').innerHTML = html;
+                document.getElementById('seccionAsistencia').style.display = 'block';
+            }
+            
+            generarListaVoluntarios(voluntarios, categoria) {
+                if (voluntarios.length === 0) {
+                    return '<p style="text-align: center; padding: 20px; color: #999;">No hay voluntarios en esta categoría</p>';
+                }
+                
+                voluntarios.sort((a, b) => {
+                    const nombreA = `${a.primerApellido} ${a.primerNombre}`;
+                    const nombreB = `${b.primerApellido} ${b.primerNombre}`;
+                    return nombreA.localeCompare(nombreB);
+                });
+                
+                return voluntarios.map(v => {
+                    const nombreCompleto = `${v.primerNombre} ${v.segundoNombre || ''} ${v.primerApellido} ${v.segundoApellido || ''}`.trim();
+                    return `
+                        <div class="voluntario-item" onclick="this.querySelector('input').click()">
+                            <input 
+                                type="checkbox" 
+                                id="bombero_${v.id}" 
+                                data-bombero-id="${v.id}"
+                                data-categoria="${categoria}"
+                            >
+                            <label for="bombero_${v.id}">
+                                <strong>${nombreCompleto}</strong>
+                                <span class="cargo-badge">${v.cargo.tipoCargo}</span>
+                            </label>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            toggleCategoria(categoria, marcar) {
+                const checkboxes = document.querySelectorAll(`[data-categoria="${categoria}"]`);
+                checkboxes.forEach(cb => cb.checked = marcar);
+            }
+            
+            guardarAsistencia() {
+                const form = document.getElementById('formDirectorio');
+                const formData = new FormData(form);
+                const datos = Object.fromEntries(formData);
+                
+                // Validar
+                if (!datos.fecha || !datos.horaInicio || !datos.horaTermino) {
+                    Utils.mostrarNotificacion('Complete todos los campos obligatorios', 'error');
+                    return;
+                }
+                
+                // Validar que hora término sea mayor a hora inicio
+                if (datos.horaTermino <= datos.horaInicio) {
+                    Utils.mostrarNotificacion('La hora de término debe ser posterior a la hora de inicio', 'error');
+                    return;
+                }
+                
+                // Obtener asistentes
+                const checkboxes = document.querySelectorAll('[data-bombero-id]');
+                const asistentes = [];
+                
+                checkboxes.forEach(cb => {
+                    if (cb.checked) {
+                        asistentes.push({
+                            bomberoId: parseInt(cb.dataset.bomberoId),
+                            categoria: cb.dataset.categoria
+                        });
+                    }
+                });
+                
+                if (asistentes.length === 0) {
+                    Utils.mostrarNotificacion('Debe seleccionar al menos un asistente', 'error');
+                    return;
+                }
+                
+                // Crear registro
+                const asistencia = {
+                    id: Date.now().toString(),
+                    tipo: 'directorio',
+                    fecha: datos.fecha,
+                    horaInicio: datos.horaInicio,
+                    horaTermino: datos.horaTermino,
+                    observaciones: datos.observaciones || '',
+                    asistentes: asistentes,
+                    fechaRegistro: new Date().toISOString()
+                };
+                
+                // Guardar
+                const asistencias = storage.getAsistencias();
+                asistencias.push(asistencia);
+                storage.saveAsistencias(asistencias);
+                
+                Utils.mostrarNotificacion('Asistencia de directorio guardada exitosamente', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'tipos-asistencia.html';
+                }, 1500);
+            }
+        }
+        
+        // Inicializar
+        const directorio = new SistemaDirectorio();
+    </script>
+</body>
+</html>

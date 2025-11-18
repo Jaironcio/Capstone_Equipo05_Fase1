@@ -1,0 +1,161 @@
+{% load static %}
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Sistema Bomberos{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 30px;">
+    <h2 style="color: #667eea; margin-bottom: 10px;">📊 Panel de Control</h2>
+    <p style="color: #666;">Resumen general del sistema</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+    <!-- Total Voluntarios -->
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+        <div style="font-size: 2.5rem; margin-bottom: 10px;">👥</div>
+        <div style="font-size: 2rem; font-weight: bold; margin-bottom: 5px;">{{ total_voluntarios }}</div>
+        <div style="opacity: 0.9;">Total Voluntarios</div>
+    </div>
+    
+    <!-- Activos -->
+    <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">
+        <div style="font-size: 2.5rem; margin-bottom: 10px;">✅</div>
+        <div style="font-size: 2rem; font-weight: bold; margin-bottom: 5px;">{{ voluntarios_activos }}</div>
+        <div style="opacity: 0.9;">Activos</div>
+    </div>
+    
+    <!-- Renunciados -->
+    <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);">
+        <div style="font-size: 2.5rem; margin-bottom: 10px;">🔄</div>
+        <div style="font-size: 2rem; font-weight: bold; margin-bottom: 5px;">{{ voluntarios_renunciados }}</div>
+        <div style="opacity: 0.9;">Renunciados</div>
+    </div>
+    
+    <!-- Total Asistencias -->
+    <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);">
+        <div style="font-size: 2.5rem; margin-bottom: 10px;">📋</div>
+        <div style="font-size: 2rem; font-weight: bold; margin-bottom: 5px;">{{ total_asistencias }}</div>
+        <div style="opacity: 0.9;">Asistencias</div>
+    </div>
+</div>
+
+<!-- Accesos Rápidos -->
+<div style="margin-bottom: 30px;">
+    <h3 style="color: #333; margin-bottom: 20px;">🚀 Accesos Rápidos</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+        <a href="/admin/voluntarios/voluntario/" style="text-decoration: none;">
+            <div style="background: white; border: 2px solid #e2e8f0; padding: 20px; border-radius: 10px; text-align: center; transition: all 0.3s; cursor: pointer;"
+                 onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateY(-5px)'"
+                 onmouseout="this.style.borderColor='#e2e8f0'; this.style.transform='translateY(0)'">
+                <div style="font-size: 2rem; margin-bottom: 10px;">👤</div>
+                <div style="color: #333; font-weight: 600;">Voluntarios</div>
+            </div>
+        </a>
+        
+        <a href="/admin/voluntarios/asistencia/" style="text-decoration: none;">
+            <div style="background: white; border: 2px solid #e2e8f0; padding: 20px; border-radius: 10px; text-align: center; transition: all 0.3s; cursor: pointer;"
+                 onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateY(-5px)'"
+                 onmouseout="this.style.borderColor='#e2e8f0'; this.style.transform='translateY(0)'">
+                <div style="font-size: 2rem; margin-bottom: 10px;">📊</div>
+                <div style="color: #333; font-weight: 600;">Asistencias</div>
+            </div>
+        </a>
+        
+        <a href="/admin/voluntarios/uniforme/" style="text-decoration: none;">
+            <div style="background: white; border: 2px solid #e2e8f0; padding: 20px; border-radius: 10px; text-align: center; transition: all 0.3s; cursor: pointer;"
+                 onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateY(-5px)'"
+                 onmouseout="this.style.borderColor='#e2e8f0'; this.style.transform='translateY(0)'">
+                <div style="font-size: 2rem; margin-bottom: 10px;">👔</div>
+                <div style="color: #333; font-weight: 600;">Uniformes</div>
+            </div>
+        </a>
+        
+        <a href="/admin/voluntarios/cargo/" style="text-decoration: none;">
+            <div style="background: white; border: 2px solid #e2e8f0; padding: 20px; border-radius: 10px; text-align: center; transition: all 0.3s; cursor: pointer;"
+                 onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateY(-5px)'"
+                 onmouseout="this.style.borderColor='#e2e8f0'; this.style.transform='translateY(0)'">
+                <div style="font-size: 2rem; margin-bottom: 10px;">⭐</div>
+                <div style="color: #333; font-weight: 600;">Cargos</div>
+            </div>
+        </a>
+        
+        <a href="/admin/voluntarios/sancion/" style="text-decoration: none;">
+            <div style="background: white; border: 2px solid #e2e8f0; padding: 20px; border-radius: 10px; text-align: center; transition: all 0.3s; cursor: pointer;"
+                 onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateY(-5px)'"
+                 onmouseout="this.style.borderColor='#e2e8f0'; this.style.transform='translateY(0)'">
+                <div style="font-size: 2rem; margin-bottom: 10px;">⚖️</div>
+                <div style="color: #333; font-weight: 600;">Sanciones</div>
+            </div>
+        </a>
+        
+        <a href="/admin/voluntarios/cuota/" style="text-decoration: none;">
+            <div style="background: white; border: 2px solid #e2e8f0; padding: 20px; border-radius: 10px; text-align: center; transition: all 0.3s; cursor: pointer;"
+                 onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateY(-5px)'"
+                 onmouseout="this.style.borderColor='#e2e8f0'; this.style.transform='translateY(0)'">
+                <div style="font-size: 2rem; margin-bottom: 10px;">💰</div>
+                <div style="color: #333; font-weight: 600;">Cuotas</div>
+            </div>
+        </a>
+        
+        <a href="/admin/voluntarios/beneficio/" style="text-decoration: none;">
+            <div style="background: white; border: 2px solid #e2e8f0; padding: 20px; border-radius: 10px; text-align: center; transition: all 0.3s; cursor: pointer;"
+                 onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateY(-5px)'"
+                 onmouseout="this.style.borderColor='#e2e8f0'; this.style.transform='translateY(0)'">
+                <div style="font-size: 2rem; margin-bottom: 10px;">🎁</div>
+                <div style="color: #333; font-weight: 600;">Beneficios</div>
+            </div>
+        </a>
+        
+        <a href="/admin/voluntarios/felicitacion/" style="text-decoration: none;">
+            <div style="background: white; border: 2px solid #e2e8f0; padding: 20px; border-radius: 10px; text-align: center; transition: all 0.3s; cursor: pointer;"
+                 onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateY(-5px)'"
+                 onmouseout="this.style.borderColor='#e2e8f0'; this.style.transform='translateY(0)'">
+                <div style="font-size: 2rem; margin-bottom: 10px;">🏆</div>
+                <div style="color: #333; font-weight: 600;">Felicitaciones</div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Últimos Voluntarios -->
+<div>
+    <h3 style="color: #333; margin-bottom: 20px;">📌 Últimos Voluntarios Registrados</h3>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f8f9fa; border-bottom: 2px solid #e2e8f0;">
+                    <th style="padding: 12px; text-align: left; color: #666; font-weight: 600;">Clave</th>
+                    <th style="padding: 12px; text-align: left; color: #666; font-weight: 600;">Nombre</th>
+                    <th style="padding: 12px; text-align: left; color: #666; font-weight: 600;">RUT</th>
+                    <th style="padding: 12px; text-align: left; color: #666; font-weight: 600;">Estado</th>
+                    <th style="padding: 12px; text-align: left; color: #666; font-weight: 600;">Fecha Ingreso</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for voluntario in ultimos_voluntarios %}
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 12px; font-weight: 600;">{{ voluntario.clave_bombero }}</td>
+                    <td style="padding: 12px;">{{ voluntario.nombre }} {{ voluntario.apellido_paterno }}</td>
+                    <td style="padding: 12px;">{{ voluntario.rut }}</td>
+                    <td style="padding: 12px;">
+                        <span style="padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;
+                                     {% if voluntario.estado_bombero == 'activo' %}background: #d1fae5; color: #065f46;
+                                     {% elif voluntario.estado_bombero == 'renunciado' %}background: #fef3c7; color: #92400e;
+                                     {% else %}background: #e2e8f0; color: #666;{% endif %}">
+                            {{ voluntario.get_estado_bombero_display }}
+                        </span>
+                    </td>
+                    <td style="padding: 12px;">{{ voluntario.fecha_ingreso }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="padding: 20px; text-align: center; color: #999;">
+                        No hay voluntarios registrados aún
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

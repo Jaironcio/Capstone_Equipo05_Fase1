@@ -1,0 +1,291 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyecto SEIS - Sistema Financiero</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js\' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/global-profesional.css' %}">
+    <link rel="stylesheet" href="{% static 'css/finanzas.css' %}">
+</head>
+<body>
+    <div class="page-container finanzas-page">
+        <div class="container">
+            <div class="page-header finanzas-header">
+                <h2>💰 SISTEMA DE GESTIÓN FINANCIERA</h2>
+                <p>Control de Ingresos y Egresos de la Compañía</p>
+            </div>
+
+            <div class="page-content">
+                <div id="mensajeFinanzas" class="mensaje-global" style="display: none;"></div>
+
+                <div class="resumen-financiero">
+                    <div class="resumen-card balance">
+                        <div class="resumen-icono">💵</div>
+                        <div class="resumen-info">
+                            <h3>Saldo Actual de la Compañía</h3>
+                            <p class="monto-principal" id="saldoActual">$0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="botones-principales">
+                    <button type="button" class="btn btn-ingreso-grande" onclick="finanzasSistema.mostrarFormulario('ingreso')">
+                        📥 Registrar Ingreso de Dinero
+                    </button>
+                    <button type="button" class="btn btn-egreso-grande" onclick="finanzasSistema.mostrarFormulario('egreso')">
+                        📤 Registrar Egreso de Dinero
+                    </button>
+                </div>
+
+                <div class="form-container" id="formContainerIngreso" style="display: none;">
+                    <div class="form-header ingreso-header">
+                        <h3>📥 REGISTRAR INGRESO DE DINERO</h3>
+                        <button class="btn-cerrar" onclick="finanzasSistema.cerrarFormulario()">✕</button>
+                    </div>
+                    
+                    <form id="formIngreso">
+    <div class="form-grid">
+       <div class="form-group">
+    <label for="tipoIngreso" class="required">Tipo de Ingreso</label>
+    <select id="tipoIngreso" name="tipoIngreso" required>
+        <option value="">Seleccione tipo</option>
+        <option value="Cartones bingo">Cartones bingo</option>
+        <option value="Accesorios bingo">Accesorios bingo</option>
+        <option value="Asesorías">Asesorías</option>
+        <option value="Socios cooperadores">Socios cooperadores</option>
+        <option value="Cuotas sociales">Cuotas sociales</option>
+        <option value="Rifa Gigante">Rifa Gigante</option>
+        <option value="Arriendo salón">Arriendo salón</option>
+        <option value="Otro">Otro</option>
+    </select>
+</div>
+
+        <div class="form-group">
+            <label for="montoIngreso" class="required">Monto (CLP)</label>
+            <input type="number" id="montoIngreso" name="montoIngreso" required min="1" placeholder="Ingrese el monto">
+        </div>
+
+        <div class="form-group">
+            <label for="fechaIngreso" class="required">Fecha</label>
+            <input type="date" id="fechaIngreso" name="fechaIngreso" required>
+        </div>
+
+        <!-- Campo dinámico según tipo de ingreso -->
+        <div class="form-group full-width" id="campoDetalleIngreso" style="display: none;">
+            <label for="detalleIngreso" class="required">Detalle</label>
+            <input type="text" id="detalleIngreso" name="detalleIngreso" placeholder="Ej: Cliente, evento, etc.">
+        </div>
+
+        <div class="form-group full-width">
+            <label for="descripcionIngreso" class="opcional">Descripción adicional</label>
+            <textarea id="descripcionIngreso" name="descripcionIngreso" rows="2" 
+                      placeholder="Observaciones o notas adicionales (opcional)"></textarea>
+        </div>
+
+        <div class="form-group full-width" id="contenedorComprobanteIngreso">
+            <label for="comprobanteIngreso" class="opcional">Comprobante (Imagen/PDF)</label>
+            <input type="file" id="comprobanteIngreso" name="comprobanteIngreso" 
+                   accept="image/*,application/pdf" onchange="finanzasSistema.previsualizarArchivo(this, 'previsualizacionIngreso')">
+            <div id="previsualizacionIngreso" class="previsualizacion-archivo"></div>
+        </div>
+    </div>
+
+    <div class="buttons">
+        <button type="submit" class="btn btn-ingreso">✅ Registrar Ingreso</button>
+        <button type="button" class="btn btn-secondary" onclick="finanzasSistema.limpiarFormularioIngreso()">Limpiar</button>
+    </div>
+</form>
+                </div>
+
+                <div class="form-container" id="formContainerEgreso" style="display: none;">
+                    <div class="form-header egreso-header">
+                        <h3>📤 REGISTRAR EGRESO DE DINERO</h3>
+                        <button class="btn-cerrar" onclick="finanzasSistema.cerrarFormulario()">✕</button>
+                    </div>
+                    
+                    <form id="formEgreso">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="motivoEgreso" class="required">Motivo del Egreso</label>
+                                <select id="motivoEgreso" name="motivoEgreso" required>
+                                    <option value="">Seleccione motivo</option>
+                                    <option value="Mantenimiento de Equipos">Mantenimiento de Equipos</option>
+                                    <option value="Combustible">Combustible</option>
+                                    <option value="Uniformes y Vestimenta">Uniformes y Vestimenta</option>
+                                    <option value="Capacitaciones">Capacitaciones</option>
+                                    <option value="Servicios Básicos">Servicios Básicos</option>
+                                    <option value="Seguros">Seguros</option>
+                                    <option value="Alimentación">Alimentación</option>
+                                    <option value="Reparaciones">Reparaciones</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="montoEgreso" class="required">Monto del Egreso</label>
+                                <input type="number" id="montoEgreso" name="montoEgreso" required min="1" step="1" placeholder="Ingrese el monto">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="fechaEgreso" class="required">Fecha de Egreso</label>
+                                <input type="date" id="fechaEgreso" name="fechaEgreso" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="numeroDocumentoEgreso" class="opcional">N° Documento</label>
+                                <input type="text" id="numeroDocumentoEgreso" name="numeroDocumentoEgreso" placeholder="Número de boleta o factura">
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="descripcionEgreso" class="required">Descripción</label>
+                                <textarea id="descripcionEgreso" name="descripcionEgreso" required rows="3" placeholder="Describa el egreso de dinero"></textarea>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="comprobanteEgreso" class="opcional">Comprobante (Boleta/Factura) - Opcional</label>
+                                <input type="file" id="comprobanteEgreso" name="comprobanteEgreso" accept="image/*,.pdf" onchange="finanzasSistema.previsualizarArchivo('egreso')">
+                                <div class="preview-container" id="previewEgreso" style="display: none;">
+                                    <img id="previewImageEgreso" src="" alt="Vista previa">
+                                    <p id="previewFileNameEgreso"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="buttons">
+                            <button type="submit" class="btn btn-egreso">✅ Registrar Egreso</button>
+                            <button type="button" class="btn btn-secondary" onclick="finanzasSistema.cerrarFormulario()">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="resumen-detallado">
+                    <h3>📊 Resumen Financiero</h3>
+                    <div class="resumen-grid">
+                        <div class="resumen-item ingresos">
+                            <span class="resumen-label">Total Ingresos:</span>
+                            <span class="resumen-valor" id="totalIngresos">$0</span>
+                        </div>
+                        <div class="resumen-item egresos">
+                            <span class="resumen-label">Total Egresos:</span>
+                            <span class="resumen-valor" id="totalEgresos">$0</span>
+                        </div>
+                    </div>
+                </div>
+<div class="list-container">
+    <div class="list-header">
+        <h3> Historial de Movimientos</h3>
+        <!--<button type="button" class="btn btn-excel" onclick="finanzasSistema.exportarExcel()">
+            Descargar Excel
+        </button>-->
+    </div>
+
+    <!-- NUEVA SECCIÓN DE BÚSQUEDA Y FILTROS -->
+    <div class="filtros-avanzados">
+        <div class="buscador-container">
+            <input type="text" 
+                   id="buscadorMovimientos" 
+                   placeholder="Buscar por descripción, categoría o monto..."
+                   onkeyup="finanzasSistema.aplicarFiltrosAvanzados()">
+        </div>
+
+        <div class="filtros-grid">
+            <div class="filtro-item">
+                <label for="filtroTipo">Tipo</label>
+                <select id="filtroTipo" onchange="finanzasSistema.aplicarFiltrosAvanzados()">
+                    <option value="todos">Todos</option>
+                    <option value="ingreso">Solo Ingresos</option>
+                    <option value="egreso">Solo Egresos</option>
+                </select>
+            </div>
+
+            <div class="filtro-item">
+    <label for="filtroCategoria">Categoría</label>
+    <select id="filtroCategoria" onchange="finanzasSistema.aplicarFiltrosAvanzados()">
+        <option value="todas">Todas las categorías</option>
+        <optgroup label="Ingresos">
+            <option value="Cartones bingo">Cartones bingo</option>
+            <option value="Accesorios bingo">Accesorios bingo</option>
+            <option value="Asesorías">Asesorías</option>
+            <option value="Socios cooperadores">Socios cooperadores</option>
+            <option value="Cuotas sociales">Cuotas sociales</option>
+            <option value="Rifa Gigante">Rifa Gigante</option>
+            <option value="Arriendo salón">Arriendo salón</option>
+        </optgroup>
+        <optgroup label="Egresos">
+            <option value="Insumos aseo">Insumos aseo</option>
+            <option value="Víveres">Víveres</option>
+            <option value="Artículos oficina">Artículos oficina</option>
+            <option value="Herramientas">Herramientas</option>
+            <option value="Combustibles">Combustibles</option>
+            <option value="Electricidad">Electricidad</option>
+            <option value="Agua">Agua</option>
+            <option value="Gas">Gas</option>
+            <option value="Telefonía">Telefonía</option>
+            <option value="Cable">Cable</option>
+            <option value="Servicios">Servicios</option>
+            <option value="Mantención">Mantención</option>
+            <option value="Habitabilidad">Habitabilidad</option>
+        </optgroup>
+        <option value="Otro">Otro</option>
+    </select>
+</div>
+
+            <div class="filtro-item">
+                <label for="filtroFechaDesde">Desde</label>
+                <input type="date" id="filtroFechaDesde" onchange="finanzasSistema.aplicarFiltrosAvanzados()">
+            </div>
+
+            <div class="filtro-item">
+                <label for="filtroFechaHasta">Hasta</label>
+                <input type="date" id="filtroFechaHasta" onchange="finanzasSistema.aplicarFiltrosAvanzados()">
+            </div>
+
+            <div class="filtro-item">
+                <button class="btn-limpiar-filtros" onclick="finanzasSistema.limpiarFiltros()">
+                    🔄 Limpiar Filtros
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="contador">
+        Total de movimientos: <strong id="totalMovimientos">0</strong>
+        <span id="resultadosFiltrados" style="display: none;"> (filtrados de <span id="totalOriginal">0</span>)</span>
+    </div>
+    
+    <div id="listaMovimientos"></div>
+    <div id="paginationControlsMovimientos"></div>
+</div>
+                <div class="navigation-buttons">
+                    <button type="button" class="btn btn-volver" onclick="finanzasSistema.volverAlSistema()">
+                        ← Regresar al Sistema Principal
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="contador">
+            Total de movimientos: <strong id="totalMovimientos">0</strong>
+            <span id="resultadosFiltrados" style="display: none;"> (filtrados de <span id="totalOriginal">0</span>)</span>
+        </div>
+        
+        <div id="listaMovimientos"></div>
+        <div id="paginationControlsMovimientos"></div>
+    </div>
+            <div class="navigation-buttons">
+                <button type="button" class="btn btn-volver" onclick="finanzasSistema.volverAlSistema()">
+                    ← Regresar al Sistema Principal
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/auth.js' %}"></script>
+<script src="{% static 'js/utils.js' %}"></script>
+<script src="{% static 'js/sidebar-django.js' %}?v=12.0"></script>
+<script src="{% static 'js/finanzas-simple.js' %}?v=4.0"></script>  <!-- Con filtros funcionando -->
+</body>
+</html>
